@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { pickSeller } from "@/lib/rodizio";
 import { createCalendarEvent, deleteCalendarEvent } from "@/lib/google-calendar";
 import { notifySlack } from "@/lib/slack";
-import { createZohoLead } from "@/lib/zoho";
+import { syncZohoAppointment } from "@/lib/zoho";
 import { RevenueRange, LeadOrigin, AppointmentStatus } from "@/app/generated/prisma/enums";
 import { addMinutes } from "date-fns";
 import { revalidatePath } from "next/cache";
@@ -69,6 +69,7 @@ export async function bookAppointment(
     where: { id: sellerId! },
     select: {
       name: true,
+      email: true,
       googleRefreshToken: true,
       googleCalendarId: true,
       defaultMeetingDuration: true,
@@ -153,17 +154,20 @@ export async function bookAppointment(
     });
   }
 
-  // Zoho CRM lead (best-effort)
+  // Zoho CRM sync (best-effort)
   if (config?.zohoRefreshToken) {
-    await createZohoLead(config.zohoRefreshToken, {
+    await syncZohoAppointment(config.zohoRefreshToken, {
       leadName,
       leadEmail:    (formData.get("leadEmail") as string) || null,
       leadPhone:    (formData.get("leadPhone") as string) || null,
       origin,
       revenueRange: revenueRange as string,
       sellerName:   seller?.name ?? "",
+      sellerEmail:  seller?.email ?? null,
       notes:        notes || null,
       meetLink,
+      date,
+      duration,
     });
   }
 

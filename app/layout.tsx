@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
+import { ImpersonationBanner } from "./components/impersonation-banner";
 import Script from "next/script";
 import "./globals.css";
 
@@ -47,7 +48,10 @@ export default function RootLayout({
               height="0" width="0" style={{ display: "none", visibility: "hidden" }} />
           </noscript>
         )}
-        <Providers>{children}</Providers>
+        <Providers>
+          <ImpersonationBanner />
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { startOfDay } from "date-fns";
+import { createImpersonateToken, createRestoreToken } from "@/lib/impersonate";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
@@ -151,4 +152,28 @@ export async function removeAvailabilityOverride(sellerId: string, overrideId: s
 
   revalidatePath(`/admin/vendedores/${sellerId}`);
   return { success: true };
+}
+
+export async function generateImpersonateToken(targetUserId: string): Promise<string | null> {
+  try {
+    const session = await requireAdmin();
+    const target = await prisma.user.findUnique({ where: { id: targetUserId }, select: { id: true } });
+    if (!target) return null;
+    return createImpersonateToken(targetUserId, session.user.id);
+  } catch {
+    return null;
+  }
+}
+
+export async function generateRestoreToken(): Promise<string | null> {
+  try {
+    const session = await getServerSession(authOptions);
+    const adminId = session?.user.originalAdminId;
+    if (!adminId) return null;
+    const admin = await prisma.user.findUnique({ where: { id: adminId }, select: { id: true } });
+    if (!admin) return null;
+    return createRestoreToken(adminId);
+  } catch {
+    return null;
+  }
 }

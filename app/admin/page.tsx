@@ -7,7 +7,7 @@ import { ptBR } from "date-fns/locale";
 import Link from "next/link";
 import { AppointmentStatus, LeadOrigin } from "@/app/generated/prisma/enums";
 import { AdminActions } from "./_components/admin-actions";
-import { Users, Settings, BarChart2 } from "lucide-react";
+import { Users, Settings, BarChart2, UserCog } from "lucide-react";
 
 const STATUS_LABEL: Record<AppointmentStatus, string> = {
   SCHEDULED: "Agendado",
@@ -68,6 +68,13 @@ export default async function AdminPage() {
           </Link>
           {session.user.role === "ADMIN" && (
             <>
+              <Link
+                href="/admin/usuarios"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand/30 px-3.5 py-2 text-sm font-medium text-brand hover:bg-brand-light transition"
+              >
+                <UserCog size={15} />
+                Usuários
+              </Link>
               <Link
                 href="/admin/analytics"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-brand/30 px-3.5 py-2 text-sm font-medium text-brand hover:bg-brand-light transition"
