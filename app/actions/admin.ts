@@ -154,6 +154,34 @@ export async function removeAvailabilityOverride(sellerId: string, overrideId: s
   return { success: true };
 }
 
+export async function addPreSeller(
+  _prev: { error: string } | { success: true },
+  formData: FormData,
+): Promise<{ error: string } | { success: true }> {
+  try { await requireAdmin(); } catch { return { error: "Sem permissão." }; }
+
+  const name     = (formData.get("name")     as string)?.trim();
+  const email    = (formData.get("email")    as string)?.trim().toLowerCase();
+  const password = (formData.get("password") as string) || "senha123";
+
+  if (!name || !email) return { error: "Nome e e-mail são obrigatórios." };
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) return { error: "E-mail já cadastrado." };
+
+  await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: await bcrypt.hash(password, 10),
+      role:     "PRE_SELLER",
+    },
+  });
+
+  revalidatePath("/admin/usuarios");
+  return { success: true };
+}
+
 export async function generateImpersonateToken(targetUserId: string): Promise<string | null> {
   try {
     const session = await requireAdmin();

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ImpersonateButton } from "@/app/components/impersonate-button";
+import { AddPreSellerForm } from "./_add-pre-seller-form";
 
 const ROLE_LABEL: Record<string, string> = {
   ADMIN:      "Admin",
@@ -40,7 +41,10 @@ export default async function UsuariosPage() {
         <span className="text-zinc-900 font-medium">Usuários</span>
       </div>
 
-      <h1 className="text-xl font-semibold text-zinc-900 mb-8">Acessar como usuário</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-xl font-semibold text-zinc-900">Usuários</h1>
+        <AddPreSellerForm />
+      </div>
 
       {(["SELLER", "PRE_SELLER"] as const).map((role) => (
         <section key={role} className="mb-8">

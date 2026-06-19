@@ -50,6 +50,11 @@ export default async function HomePage() {
               Minha agenda
             </Link>
           )}
+          {session.user.role === "PRE_SELLER" && (
+            <Link href="/minha-agenda" className="text-sm font-semibold text-gold hover:text-white transition">
+              Minha atividade
+            </Link>
+          )}
           {(isAdmin || isSeller) && (
             <Link href="/admin" className="text-sm font-semibold text-gold hover:text-white transition">
               Admin
