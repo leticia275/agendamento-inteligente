@@ -1,0 +1,41 @@
+import { LoginForm } from "./login-form";
+
+export default function LoginPage() {
+  return (
+    <div className="flex flex-1 min-h-screen flex-col items-center justify-center px-4 bg-brand-light">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="mb-8 flex flex-col items-center gap-4">
+          <div className="w-28 h-28 rounded-full bg-brand flex items-center justify-center overflow-hidden shadow-lg">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.png"
+              alt=""
+              width={112}
+              height={112}
+              className="object-contain"
+            />
+          </div>
+          <div className="text-center flex flex-col items-center gap-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-texto.png"
+              alt="Reconecta"
+              className="object-contain h-10"
+            />
+            <p className="text-xs text-zinc-500 italic">
+              Reconectando quem você é e como você é vista
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-zinc-200 bg-white px-8 py-8 shadow-sm">
+          <p className="text-sm text-zinc-500 text-center mb-6">
+            Acesso restrito ao time interno
+          </p>
+          <LoginForm />
+        </div>
+      </div>
+    </div>
+  );
+}

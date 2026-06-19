@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  PRE_SELLER
+  SELLER
+  ADMIN
+}
+
+enum RevenueRange {
+  BELOW_12K
+  ABOVE_12K
+}
+
+enum LeadOrigin {
+  REATIVACAO
+  RECUPERACAO
+  FABRICA_CONTATOS
+  INDICACAO
+  FOLLOW_UP
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// --- NextAuth required models ---
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          UserRole  @default(PRE_SELLER)
+  slug          String?   @unique
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Google Calendar integration
+  googleRefreshToken     String?
+  googleCalendarId       String?  // null = "primary"
+
+  // Per-seller config
+  defaultMeetingDuration   Int    @default(60) // minutes
+  conversionWeightOverride Float? // null = auto-calculated from history
+  maxMeetingsPerDay        Int?   // null = unlimited
+  bufferMinutes            Int    @default(0)  // gap before/after each meeting
+  bookingWindowDays        Int    @default(30) // how far ahead leads can book
+  minSchedulingNoticeHours Int?   // null = use global config
+
+  accounts             Account[]
+  sessions             Session[]
+  availability         Availability[]
+  overrides            AvailabilityOverride[]
+  appointments         Appointment[]  @relation("SellerAppointments")
+  bookedAppointments   Appointment[]  @relation("PreSellerAppointments")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// --- Disponibilidade semanal do vendedor ---
+
+model Availability {
+  id           String @id @default(cuid())
+  sellerId     String
+  dayOfWeek    Int    // 0=Dom 1=Seg 2=Ter 3=Qua 4=Qui 5=Sex 6=Sab
+  startTime    String // "HH:mm"
+  endTime      String // "HH:mm"
+
+  seller User @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+// --- Agendamentos ---
+
+model Appointment {
+  id          String            @id @default(cuid())
+  sellerId    String
+  preSellerId String
+  date        DateTime
+  duration    Int               @default(60)
+  status      AppointmentStatus @default(SCHEDULED)
+  converted   Boolean           @default(false)
+
+  // Google Calendar event ID (for future updates/deletions)
+  googleEventId String?
+  meetLink      String?
+
+  // Dados do lead
+  leadName     String
+  leadEmail    String?
+  leadPhone    String?
+  revenueRange RevenueRange
+  origin       LeadOrigin
+  notes        String?
+
+  // Rastreamento / atribuição
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+  fbClickId   String? // _fbc
+  fbBrowserId String? // _fbp
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  seller    User @relation("SellerAppointments",    fields: [sellerId],    references: [id])
+  preSeller User @relation("PreSellerAppointments", fields: [preSellerId], references: [id])
+}
+
+// --- Configuração global do sistema ---
+
+model SystemConfig {
+  id                       String   @id @default("global")
+  eventDescriptionTemplate String   @default("Reunião de vendas — Reconecta\n\nVendedor: {seller}\nLead: {leadName}\nFaturamento: {revenueRange}\nOrigem: {origin}\n\n{notes}")
+  minSchedulingNoticeHours Int      @default(2)
+  slackWebhookUrl          String?
+  zohoRefreshToken         String?
+  updatedAt                DateTime @updatedAt
+}
+
+// Bloqueio de datas avulsas por vendedor
+model AvailabilityOverride {
+  id        String   @id @default(cuid())
+  sellerId  String
+  date      DateTime // início do dia UTC
+  isBlocked Boolean  @default(true)
+
+  seller    User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@unique([sellerId, date])
+}
