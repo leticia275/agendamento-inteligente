@@ -23,7 +23,7 @@ export default function LoginPage() {
           <div className="w-28 h-28 rounded-full bg-brand flex items-center justify-center overflow-hidden shadow-lg">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo.png"
+              src="/logo-login.png"
               alt=""
               className="h-[160px] w-auto object-contain"
               style={{ filter: "url(#remove-white-login)" }}
