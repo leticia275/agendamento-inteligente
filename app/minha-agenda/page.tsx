@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { BrandHeader } from "@/app/components/brand-header";
+import { SignOutButton } from "@/app/components/sign-out-button";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -67,7 +68,12 @@ export default async function MinhaAgendaPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <BrandHeader />
+      <BrandHeader right={
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-white/60 hidden sm:block">{session.user.name}</span>
+          <SignOutButton />
+        </div>
+      } />
       <main className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-xl font-semibold text-zinc-900 mb-1">
           {isPreSeller ? "Minha atividade" : "Minha agenda"}
