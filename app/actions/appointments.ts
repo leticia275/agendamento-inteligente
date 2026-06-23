@@ -281,5 +281,7 @@ export async function cancelByToken(
     );
   }
 
+  revalidatePath("/agendar", "layout");
+  revalidatePath("/admin");
   return { success: true, leadName: appt.leadName };
 }
