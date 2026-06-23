@@ -20,12 +20,12 @@ export default function LoginPage() {
             </defs>
           </svg>
 
-          <div className="w-28 h-28 rounded-full bg-brand flex items-center justify-center overflow-hidden shadow-lg">
+          <div className="w-32 h-32 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-lg border border-zinc-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-login.png"
               alt=""
-              className="h-[160px] w-auto object-contain"
+              className="h-24 w-24 object-contain"
             />
           </div>
 
