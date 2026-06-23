@@ -8,6 +8,7 @@ import Link from "next/link";
 import { AppointmentStatus, LeadOrigin } from "@/app/generated/prisma/enums";
 import { AdminActions } from "./_components/admin-actions";
 import { Users, Settings, BarChart2, UserCog } from "lucide-react";
+import { SignOutButton } from "@/app/components/sign-out-button";
 
 const STATUS_LABEL: Record<AppointmentStatus, string> = {
   SCHEDULED: "Agendado",
@@ -97,6 +98,7 @@ export default async function AdminPage() {
           >
             ← Início
           </Link>
+          <SignOutButton variant="light" />
         </div>
       </div>
 

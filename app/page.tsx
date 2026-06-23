@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Users, User, Settings, Shuffle } from "lucide-react";
+import { SignOutButton } from "@/app/components/sign-out-button";
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -44,7 +45,7 @@ export default async function HomePage() {
           />
         </Link>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-white/70">{session.user.name}</span>
+          <span className="text-sm text-white/70 hidden sm:block">{session.user.name}</span>
           {isSeller && (
             <Link href="/minha-agenda" className="text-sm font-semibold text-gold hover:text-white transition">
               Minha agenda
@@ -60,6 +61,7 @@ export default async function HomePage() {
               Admin
             </Link>
           )}
+          <SignOutButton />
         </div>
       </header>
 
