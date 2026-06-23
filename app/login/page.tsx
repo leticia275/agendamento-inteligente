@@ -6,23 +6,37 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-4">
+          <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+            <defs>
+              <filter id="remove-white-login">
+                <feColorMatrix
+                  type="matrix"
+                  values="1 0 0 0 0
+                          0 1 0 0 0
+                          0 0 1 0 0
+                         -1 -1 -1 3 0"
+                />
+              </filter>
+            </defs>
+          </svg>
+
           <div className="w-28 h-28 rounded-full bg-brand flex items-center justify-center overflow-hidden shadow-lg">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo.png"
               alt=""
-              width={112}
-              height={112}
-              className="object-contain"
+              className="h-[160px] w-auto object-contain"
+              style={{ filter: "url(#remove-white-login)" }}
             />
           </div>
+
           <div className="text-center flex flex-col items-center gap-1">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo-texto.png"
-              alt="Reconecta"
-              className="object-contain h-10"
-            />
+            <p
+              className="text-2xl font-bold tracking-wide text-brand"
+              style={{ fontFamily: "Georgia, serif" }}
+            >
+              Reconecta
+            </p>
             <p className="text-xs text-zinc-500 italic">
               Reconectando quem você é e como você é vista
             </p>
