@@ -6,36 +6,42 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-4">
-          <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+          {/* SVG nativo: filtro aplicado dentro do contexto SVG, sem bug de compositing do Chrome */}
+          <svg
+            width="128"
+            height="128"
+            className="shadow-xl"
+            style={{ borderRadius: "50%", display: "block" }}
+          >
             <defs>
-              <filter id="logo-bordeaux">
-                {/* 1. flood bordeaux no fundo */}
+              <filter
+                id="logo-bordeaux"
+                filterUnits="userSpaceOnUse"
+                x="-96" y="-96" width="320" height="320"
+              >
                 <feFlood floodColor="#8B1A1A" floodOpacity="1" result="bg" />
-                {/* 2. extrai canal alpha: branco→transparente, dourado→opaco */}
-                <feColorMatrix type="matrix"
-                  values="1 0 0 0 0
-                          0 1 0 0 0
-                          0 0 1 0 0
-                          0 0 -3 0 3"
-                  in="SourceGraphic" result="masked" />
-                {/* 3. compõe logo sobre fundo bordeaux — sem depender de transparência do parent */}
+                <feColorMatrix
+                  type="matrix"
+                  values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 -3 0 3"
+                  in="SourceGraphic"
+                  result="masked"
+                />
                 <feComposite in="masked" in2="bg" operator="over" />
               </filter>
+              <clipPath id="logo-circle">
+                <circle cx="64" cy="64" r="64" />
+              </clipPath>
             </defs>
-          </svg>
-
-          <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center shadow-xl">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo-login.png"
-              alt=""
-              className="w-full h-full object-contain"
-              style={{
-                transform: "scale(2.8)",
-                filter: "url(#logo-bordeaux)",
-              }}
+            {/* 250%: 128×2.5=320, offset=(128-320)/2=-96 */}
+            <image
+              href="/logo-login.png"
+              x="-96" y="-96"
+              width="320" height="320"
+              filter="url(#logo-bordeaux)"
+              clipPath="url(#logo-circle)"
+              preserveAspectRatio="xMidYMid meet"
             />
-          </div>
+          </svg>
 
           <div className="text-center flex flex-col items-center gap-1">
             <p
