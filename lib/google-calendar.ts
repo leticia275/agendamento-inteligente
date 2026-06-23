@@ -1,5 +1,16 @@
 import { google } from "googleapis";
 
+// Returns "YYYY-MM-DDTHH:mm:ss" in São Paulo local time (no offset suffix).
+// GCal interprets this as BRT when timeZone: "America/Sao_Paulo" is set.
+function toBRTLocalString(date: Date): string {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hour12: false,
+  }).format(date).replace(" ", "T");
+}
+
 function getOAuth2Client() {
   return new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -67,8 +78,8 @@ export async function createCalendarEvent(
       requestBody: {
         summary:     event.summary,
         description: event.description,
-        start: { dateTime: event.start.toISOString(), timeZone: "America/Sao_Paulo" },
-        end:   { dateTime: event.end.toISOString(),   timeZone: "America/Sao_Paulo" },
+        start: { dateTime: toBRTLocalString(event.start), timeZone: "America/Sao_Paulo" },
+        end:   { dateTime: toBRTLocalString(event.end),   timeZone: "America/Sao_Paulo" },
         conferenceData: {
           createRequest: {
             requestId:             `${Date.now()}-${Math.random().toString(36).slice(2)}`,
