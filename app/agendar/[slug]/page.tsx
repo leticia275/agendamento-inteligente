@@ -5,10 +5,14 @@ import { BookingFlow } from "@/app/agendar/_components/booking-flow";
 import { BrandHeader } from "@/app/components/brand-header";
 import { addDays, startOfDay } from "date-fns";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ from?: string }>;
+};
 
-export default async function SellerBookingPage({ params }: Props) {
+export default async function SellerBookingPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const { from: fromToken } = await searchParams;
 
   const seller = await prisma.user.findUnique({
     where: { slug, role: "SELLER", active: true },
@@ -43,6 +47,7 @@ export default async function SellerBookingPage({ params }: Props) {
           availableDaySlots={availableDaySlots}
           sellerId={seller.id}
           sellerName={seller.name ?? undefined}
+          fromToken={fromToken}
         />
       </main>
     </div>

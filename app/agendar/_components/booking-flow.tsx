@@ -14,11 +14,12 @@ type Props = {
   sellerId?: string;
   isRodizio?: boolean;
   sellerName?: string;
+  fromToken?: string;
 };
 
 type Step = "calendar" | "slots" | "form" | "success";
 
-export function BookingFlow({ availableDaySlots, sellerId, isRodizio, sellerName }: Props) {
+export function BookingFlow({ availableDaySlots, sellerId, isRodizio, sellerName, fromToken }: Props) {
   const [step, setStep] = useState<Step>("calendar");
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [selectedDateTime, setSelectedDateTime] = useState<Date | null>(null);
@@ -68,6 +69,7 @@ export function BookingFlow({ availableDaySlots, sellerId, isRodizio, sellerName
         selectedDateTime={selectedDateTime}
         sellerId={sellerId}
         isRodizio={isRodizio}
+        fromToken={fromToken}
         onBack={() => setStep("slots")}
         onSuccess={() => setStep("success")}
       />

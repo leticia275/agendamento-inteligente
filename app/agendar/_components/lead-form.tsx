@@ -9,6 +9,7 @@ type Props = {
   selectedDateTime: Date;
   sellerId?: string;
   isRodizio?: boolean;
+  fromToken?: string;
   onBack: () => void;
   onSuccess: () => void;
 };
@@ -26,7 +27,7 @@ function getCookie(name: string): string {
 
 const initialState = { error: undefined as string | undefined, success: false };
 
-export function LeadForm({ selectedDateTime, sellerId, isRodizio, onBack, onSuccess }: Props) {
+export function LeadForm({ selectedDateTime, sellerId, isRodizio, fromToken, onBack, onSuccess }: Props) {
   const [tracking, setTracking] = useState<Tracking>({
     utmSource: "", utmMedium: "", utmCampaign: "",
     utmContent: "", utmTerm: "", fbClickId: "", fbBrowserId: "",
@@ -77,6 +78,7 @@ export function LeadForm({ selectedDateTime, sellerId, isRodizio, onBack, onSucc
       <input type="hidden" name="selectedDateTime" value={selectedDateTime.toISOString()} />
       {sellerId && <input type="hidden" name="sellerId" value={sellerId} />}
       <input type="hidden" name="isRodizio" value={isRodizio ? "true" : "false"} />
+      {fromToken && <input type="hidden" name="fromToken" value={fromToken} />}
 
       {/* Hidden: tracking */}
       <input type="hidden" name="utmSource"   value={tracking.utmSource} />

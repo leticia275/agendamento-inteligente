@@ -150,6 +150,8 @@ model Appointment {
   fbClickId   String? // _fbc
   fbBrowserId String? // _fbp
 
+  cancelToken String?  @unique
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

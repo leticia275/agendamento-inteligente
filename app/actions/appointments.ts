@@ -10,6 +10,7 @@ import { syncZohoAppointment } from "@/lib/zoho";
 import { RevenueRange, LeadOrigin, AppointmentStatus } from "@/app/generated/prisma/enums";
 import { addMinutes } from "date-fns";
 import { revalidatePath } from "next/cache";
+import { randomBytes } from "crypto";
 
 const ORIGIN_LABEL: Record<LeadOrigin, string> = {
   REATIVACAO:       "Reativação",
@@ -80,6 +81,8 @@ export async function bookAppointment(
   const date     = new Date(rawDate);
   const notes    = (formData.get("notes") as string) || "";
 
+  const cancelToken = randomBytes(32).toString("hex");
+
   const appointment = await prisma.appointment.create({
     data: {
       sellerId:    sellerId!,
@@ -87,6 +90,7 @@ export async function bookAppointment(
       date,
       duration,
       leadName,
+      cancelToken,
       leadEmail:   (formData.get("leadEmail") as string) || null,
       leadPhone:   (formData.get("leadPhone") as string) || null,
       revenueRange,
@@ -116,12 +120,17 @@ export async function bookAppointment(
       notes,
     });
 
+    const baseUrl = process.env.NEXTAUTH_URL ?? "https://reconecta-calendar.vercel.app";
+    const cancelUrl     = `${baseUrl}/cancelar/${cancelToken}`;
+    const rescheduleUrl = `${baseUrl}/reagendar/${cancelToken}`;
+    const fullDescription = `${description}\n\n---\n❌ Cancelar: ${cancelUrl}\n🔄 Reagendar: ${rescheduleUrl}`;
+
     const gcalResult = await createCalendarEvent(
       seller.googleRefreshToken,
       seller.googleCalendarId ?? "primary",
       {
         summary:     `Reunião: ${leadName} e ${seller.name ?? ""}`,
-        description,
+        description: fullDescription,
         start:       date,
         end:         addMinutes(date, duration),
       },
@@ -169,6 +178,28 @@ export async function bookAppointment(
       date,
       duration,
     });
+  }
+
+  // If rescheduling, cancel the original appointment by its cancel token
+  const fromToken = (formData.get("fromToken") as string) || null;
+  if (fromToken) {
+    const prev = await prisma.appointment.findUnique({
+      where: { cancelToken: fromToken },
+      include: { seller: { select: { googleRefreshToken: true, googleCalendarId: true } } },
+    });
+    if (prev && prev.status === "SCHEDULED") {
+      await prisma.appointment.update({
+        where: { id: prev.id },
+        data: { status: AppointmentStatus.CANCELLED },
+      });
+      if (prev.googleEventId && prev.seller.googleRefreshToken) {
+        await deleteCalendarEvent(
+          prev.seller.googleRefreshToken,
+          prev.seller.googleCalendarId ?? "primary",
+          prev.googleEventId,
+        );
+      }
+    }
   }
 
   revalidatePath("/");
@@ -223,4 +254,32 @@ export async function cancelAppointment(id: string) {
   revalidatePath("/");
   revalidatePath("/admin");
   return { success: true };
+}
+
+export async function cancelByToken(
+  token: string,
+): Promise<{ success: true; leadName: string } | { error: string }> {
+  const appt = await prisma.appointment.findUnique({
+    where: { cancelToken: token },
+    include: { seller: { select: { googleRefreshToken: true, googleCalendarId: true } } },
+  });
+
+  if (!appt) return { error: "Link inválido ou expirado." };
+  if (appt.status === "CANCELLED") return { error: "Este agendamento já foi cancelado." };
+  if (appt.status === "COMPLETED") return { error: "Este agendamento já foi realizado." };
+
+  await prisma.appointment.update({
+    where: { id: appt.id },
+    data: { status: AppointmentStatus.CANCELLED },
+  });
+
+  if (appt.googleEventId && appt.seller.googleRefreshToken) {
+    await deleteCalendarEvent(
+      appt.seller.googleRefreshToken,
+      appt.seller.googleCalendarId ?? "primary",
+      appt.googleEventId,
+    );
+  }
+
+  return { success: true, leadName: appt.leadName };
 }
