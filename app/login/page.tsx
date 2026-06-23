@@ -21,12 +21,12 @@ export default function LoginPage() {
             </defs>
           </svg>
 
-          <div className="w-36 h-36 rounded-full bg-brand flex items-center justify-center overflow-hidden shadow-lg">
+          <div className="w-28 h-28 rounded-full flex items-center justify-center overflow-hidden shadow-lg" style={{ backgroundColor: "#8B1A1A" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-login.png"
               alt=""
-              className="h-32 w-32 object-contain"
+              className="h-44 w-44 object-contain"
               style={{ filter: "url(#remove-white-login)" }}
             />
           </div>
