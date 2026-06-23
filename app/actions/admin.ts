@@ -220,9 +220,20 @@ export async function generateImpersonateToken(targetUserId: string): Promise<st
   }
 }
 
-export async function toggleSellerActive(sellerId: string, active: boolean): Promise<void> {
+export async function setSellerRodizio(
+  sellerId: string,
+  plus: boolean,
+  minus: boolean,
+): Promise<void> {
   await requireAdmin();
-  await prisma.user.update({ where: { id: sellerId }, data: { active } });
+  await prisma.user.update({
+    where: { id: sellerId },
+    data: {
+      inRodizioPlus: plus,
+      inRodizioMinus: minus,
+      active: plus || minus,
+    },
+  });
   revalidatePath("/admin/vendedores");
 }
 

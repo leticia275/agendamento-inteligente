@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ChevronRight, Plus, Wifi, WifiOff } from "lucide-react";
-import { ToggleActive } from "./_toggle-active";
+import { RodizioChips } from "./_toggle-active";
 
 export default async function VendedoresPage() {
   const session = await getServerSession(authOptions);
@@ -19,6 +19,8 @@ export default async function VendedoresPage() {
       name: true,
       slug: true,
       active: true,
+      inRodizioPlus: true,
+      inRodizioMinus: true,
       googleRefreshToken: true,
       defaultMeetingDuration: true,
       conversionWeightOverride: true,
@@ -92,7 +94,7 @@ export default async function VendedoresPage() {
                   <WifiOff size={13} /> Sem Calendar
                 </span>
               )}
-              <ToggleActive sellerId={s.id} active={s.active} />
+              <RodizioChips sellerId={s.id} inRodizioPlus={s.inRodizioPlus} inRodizioMinus={s.inRodizioMinus} />
               <ChevronRight size={16} className="text-zinc-400" />
             </div>
           </Link>

@@ -7,7 +7,13 @@ import { RevenueRange } from "@/app/generated/prisma/enums";
 
 export async function pickSeller(revenueRange: RevenueRange): Promise<string> {
   const sellers = await prisma.user.findMany({
-    where: { role: "SELLER", active: true },
+    where: {
+      role: "SELLER",
+      active: true,
+      ...(revenueRange === RevenueRange.ABOVE_12K
+        ? { inRodizioPlus: true }
+        : { inRodizioMinus: true }),
+    },
     select: { id: true, conversionWeightOverride: true },
   });
 

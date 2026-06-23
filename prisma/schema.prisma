@@ -45,6 +45,8 @@ model User {
   role          UserRole  @default(PRE_SELLER)
   slug          String?   @unique
   active        Boolean   @default(true)
+  inRodizioPlus  Boolean  @default(true)
+  inRodizioMinus Boolean  @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

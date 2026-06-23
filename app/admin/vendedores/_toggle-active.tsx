@@ -1,28 +1,48 @@
 "use client";
 
 import { useTransition } from "react";
-import { toggleSellerActive } from "@/app/actions/admin";
+import { setSellerRodizio } from "@/app/actions/admin";
 
-export function ToggleActive({ sellerId, active }: { sellerId: string; active: boolean }) {
+export function RodizioChips({
+  sellerId,
+  inRodizioPlus,
+  inRodizioMinus,
+}: {
+  sellerId: string;
+  inRodizioPlus: boolean;
+  inRodizioMinus: boolean;
+}) {
   const [pending, startTransition] = useTransition();
 
+  const toggle = (plus: boolean, minus: boolean) => {
+    startTransition(() => setSellerRodizio(sellerId, plus, minus));
+  };
+
   return (
-    <button
-      onClick={(e) => {
-        e.preventDefault();
-        startTransition(() => toggleSellerActive(sellerId, !active));
-      }}
-      disabled={pending}
-      title={active ? "Remover do rodízio" : "Adicionar ao rodízio"}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-        active ? "bg-brand" : "bg-zinc-300"
-      } ${pending ? "opacity-60" : ""}`}
+    <div
+      className={`flex items-center gap-1.5 ${pending ? "opacity-60 pointer-events-none" : ""}`}
+      onClick={(e) => e.preventDefault()}
     >
-      <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-          active ? "translate-x-6" : "translate-x-1"
+      <button
+        onClick={() => toggle(!inRodizioPlus, inRodizioMinus)}
+        className={`text-xs px-2.5 py-1 rounded-full font-medium border transition ${
+          inRodizioPlus
+            ? "bg-brand text-white border-brand"
+            : "bg-white text-zinc-400 border-zinc-200"
         }`}
-      />
-    </button>
+      >
+        Plus
+      </button>
+      <button
+        onClick={() => toggle(inRodizioPlus, !inRodizioMinus)}
+        className={`text-xs px-2.5 py-1 rounded-full font-medium border transition ${
+          inRodizioMinus
+            ? "bg-brand text-white border-brand"
+            : "bg-white text-zinc-400 border-zinc-200"
+        }`}
+      >
+        Minus
+      </button>
+    </div>
   );
 }
