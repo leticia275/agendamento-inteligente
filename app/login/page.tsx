@@ -26,7 +26,6 @@ export default function LoginPage() {
               src="/logo-login.png"
               alt=""
               className="h-[160px] w-auto object-contain"
-              style={{ filter: "url(#remove-white-login)" }}
             />
           </div>
 
