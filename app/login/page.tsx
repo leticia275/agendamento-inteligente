@@ -9,23 +9,25 @@ export default function LoginPage() {
           <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
             <defs>
               <filter id="remove-white-login">
+                {/* usa canal azul: branco (B=1→alpha=0) some, dourado (B≈0.54→alpha=1) fica */}
                 <feColorMatrix
                   type="matrix"
                   values="1 0 0 0 0
                           0 1 0 0 0
                           0 0 1 0 0
-                         -1 -1 -1 3 0"
+                          0 0 -3 0 3"
                 />
               </filter>
             </defs>
           </svg>
 
-          <div className="w-32 h-32 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-lg border border-zinc-100">
+          <div className="w-36 h-36 rounded-full bg-brand flex items-center justify-center overflow-hidden shadow-lg">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-login.png"
               alt=""
-              className="h-24 w-24 object-contain"
+              className="h-32 w-32 object-contain"
+              style={{ filter: "url(#remove-white-login)" }}
             />
           </div>
 
