@@ -6,7 +6,6 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-4">
-          {/* SVG nativo: filtro aplicado dentro do contexto SVG, sem bug de compositing do Chrome */}
           <svg
             width="128"
             height="128"
@@ -14,30 +13,17 @@ export default function LoginPage() {
             style={{ borderRadius: "50%", display: "block" }}
           >
             <defs>
-              <filter
-                id="logo-bordeaux"
-                filterUnits="userSpaceOnUse"
-                x="-96" y="-96" width="320" height="320"
-              >
-                <feFlood floodColor="#8B1A1A" floodOpacity="1" result="bg" />
-                <feColorMatrix
-                  type="matrix"
-                  values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 -3 0 3"
-                  in="SourceGraphic"
-                  result="masked"
-                />
-                <feComposite in="masked" in2="bg" operator="over" />
-              </filter>
               <clipPath id="logo-circle">
                 <circle cx="64" cy="64" r="64" />
               </clipPath>
             </defs>
-            {/* 250%: 128×2.5=320, offset=(128-320)/2=-96 */}
+            {/* fundo bordeaux */}
+            <circle cx="64" cy="64" r="64" fill="#8B1A1A" />
+            {/* PNG com transparência real — sem filtro */}
             <image
-              href="/logo-login.png"
+              href="/logo-login-transparent.png"
               x="-96" y="-96"
               width="320" height="320"
-              filter="url(#logo-bordeaux)"
               clipPath="url(#logo-circle)"
               preserveAspectRatio="xMidYMid meet"
             />
