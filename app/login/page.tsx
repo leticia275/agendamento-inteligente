@@ -6,29 +6,16 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-4">
-          <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
-            <defs>
-              <filter id="remove-white-login">
-                {/* usa canal azul: branco (B=1→alpha=0) some, dourado (B≈0.54→alpha=1) fica */}
-                <feColorMatrix
-                  type="matrix"
-                  values="1 0 0 0 0
-                          0 1 0 0 0
-                          0 0 1 0 0
-                          0 0 -3 0 3"
-                />
-              </filter>
-            </defs>
-          </svg>
-
-          <div className="w-28 h-28 rounded-full flex items-center justify-center overflow-hidden shadow-lg" style={{ backgroundColor: "#8B1A1A" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo-login.png"
-              alt=""
-              className="h-44 w-44 object-contain"
-              style={{ filter: "url(#remove-white-login)" }}
-            />
+          <div className="rounded-full p-3 shadow-xl" style={{ backgroundColor: "#8B1A1A" }}>
+            <div className="w-24 h-24 rounded-full bg-white overflow-hidden flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-login.png"
+                alt=""
+                className="object-contain"
+                style={{ width: "140%", height: "140%" }}
+              />
+            </div>
           </div>
 
           <div className="text-center flex flex-col items-center gap-1">
