@@ -3,7 +3,7 @@ import { getBusyTimes } from "@/lib/google-calendar";
 import { toZonedTime, fromZonedTime, formatInTimeZone } from "date-fns-tz";
 import {
   startOfDay, endOfDay, addMinutes, getDay,
-  isWithinInterval, parse, format, isBefore, addHours, addDays,
+  parse, format, isBefore, addHours, addDays,
 } from "date-fns";
 
 const TZ = "America/Sao_Paulo";
@@ -139,11 +139,10 @@ export async function getSlotsForRange(
         continue;
       }
 
+      // Half-open interval overlap: [cursor, end) overlaps [b.start, b.end)
+      // A slot starting exactly when a block ends (cursor === b.end) is NOT blocked.
       const blocked = blockedIntervals.some(
-        (b) =>
-          isWithinInterval(cursor, { start: b.start, end: b.end }) ||
-          isWithinInterval(b.start, { start: cursor, end }) ||
-          +cursor === +b.start,
+        (b) => cursor < b.end && b.start < end,
       );
 
       if (!blocked) {
