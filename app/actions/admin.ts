@@ -220,6 +220,12 @@ export async function generateImpersonateToken(targetUserId: string): Promise<st
   }
 }
 
+export async function toggleSellerActive(sellerId: string, active: boolean): Promise<void> {
+  await requireAdmin();
+  await prisma.user.update({ where: { id: sellerId }, data: { active } });
+  revalidatePath("/admin/vendedores");
+}
+
 export async function generateRestoreToken(): Promise<string | null> {
   try {
     const session = await getServerSession(authOptions);
