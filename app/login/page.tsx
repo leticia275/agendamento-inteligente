@@ -8,28 +8,31 @@ export default function LoginPage() {
         <div className="mb-8 flex flex-col items-center gap-4">
           <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
             <defs>
-              <filter id="remove-white-login">
+              <filter id="logo-bordeaux">
+                {/* 1. flood bordeaux no fundo */}
+                <feFlood floodColor="#8B1A1A" floodOpacity="1" result="bg" />
+                {/* 2. extrai canal alpha: branco→transparente, dourado→opaco */}
                 <feColorMatrix type="matrix"
                   values="1 0 0 0 0
                           0 1 0 0 0
                           0 0 1 0 0
-                          0 0 -3 0 3" />
+                          0 0 -3 0 3"
+                  in="SourceGraphic" result="masked" />
+                {/* 3. compõe logo sobre fundo bordeaux — sem depender de transparência do parent */}
+                <feComposite in="masked" in2="bg" operator="over" />
               </filter>
             </defs>
           </svg>
 
-          <div
-            className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center shadow-xl"
-            style={{ backgroundColor: "#8B1A1A" }}
-          >
+          <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center shadow-xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-login.png"
               alt=""
               className="w-full h-full object-contain"
               style={{
-                transform: "scale(3.5)",
-                filter: "url(#remove-white-login)",
+                transform: "scale(2.8)",
+                filter: "url(#logo-bordeaux)",
               }}
             />
           </div>
