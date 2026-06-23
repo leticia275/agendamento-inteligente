@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ImpersonateButton } from "@/app/components/impersonate-button";
 import { AddPreSellerForm } from "./_add-pre-seller-form";
+import { UserActions } from "./_user-actions";
 
 const ROLE_LABEL: Record<string, string> = {
   ADMIN:      "Admin",
@@ -18,17 +19,20 @@ const ROLE_COLORS: Record<string, string> = {
   PRE_SELLER: "bg-zinc-100 text-zinc-600",
 };
 
+const ROLE_ORDER = ["ADMIN", "SELLER", "PRE_SELLER"];
+
 export default async function UsuariosPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
   if (session.user.role !== "ADMIN") redirect("/");
 
   const users = await prisma.user.findMany({
-    orderBy: [{ role: "asc" }, { name: "asc" }],
+    orderBy: [{ name: "asc" }],
     select: { id: true, name: true, email: true, role: true, active: true },
   });
 
   const grouped = {
+    ADMIN:      users.filter((u) => u.role === "ADMIN"),
     SELLER:     users.filter((u) => u.role === "SELLER"),
     PRE_SELLER: users.filter((u) => u.role === "PRE_SELLER"),
   };
@@ -46,40 +50,54 @@ export default async function UsuariosPage() {
         <AddPreSellerForm />
       </div>
 
-      {(["SELLER", "PRE_SELLER"] as const).map((role) => (
-        <section key={role} className="mb-8">
-          <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
-            {ROLE_LABEL[role]}s
-          </h2>
-          <div className="flex flex-col gap-2">
-            {grouped[role].length === 0 && (
-              <p className="text-sm text-zinc-400 py-4">Nenhum {ROLE_LABEL[role].toLowerCase()} cadastrado.</p>
-            )}
-            {grouped[role].map((u) => (
-              <div
-                key={u.id}
-                className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
-                  u.active ? "border-zinc-200 bg-white" : "border-zinc-100 bg-zinc-50"
-                }`}
-              >
-                <div>
-                  <p className={`font-medium text-sm ${u.active ? "text-zinc-900" : "text-zinc-400"}`}>
-                    {u.name}
-                    {!u.active && <span className="ml-2 text-xs text-zinc-400">(inativo)</span>}
-                  </p>
-                  <p className="text-xs text-zinc-400 mt-0.5">{u.email}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[u.role]}`}>
-                    {ROLE_LABEL[u.role]}
-                  </span>
-                  <ImpersonateButton userId={u.id} userName={u.name ?? u.email} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      ))}
+      {ROLE_ORDER.map((role) => {
+        const list = grouped[role as keyof typeof grouped];
+        return (
+          <section key={role} className="mb-8">
+            <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
+              {ROLE_LABEL[role]}s
+            </h2>
+            <div className="flex flex-col gap-2">
+              {list.length === 0 && (
+                <p className="text-sm text-zinc-400 py-2">Nenhum {ROLE_LABEL[role].toLowerCase()} cadastrado.</p>
+              )}
+              {list.map((u) => {
+                const isSelf = u.id === session.user.id;
+                return (
+                  <div
+                    key={u.id}
+                    className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
+                      u.active ? "border-zinc-200 bg-white" : "border-zinc-100 bg-zinc-50"
+                    }`}
+                  >
+                    <div>
+                      <p className={`font-medium text-sm ${u.active ? "text-zinc-900" : "text-zinc-400"}`}>
+                        {u.name}
+                        {isSelf && <span className="ml-2 text-xs text-zinc-400">(você)</span>}
+                        {!u.active && <span className="ml-2 text-xs text-zinc-400">(inativo)</span>}
+                      </p>
+                      <p className="text-xs text-zinc-400 mt-0.5">{u.email}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[u.role]}`}>
+                        {ROLE_LABEL[u.role]}
+                      </span>
+                      {!isSelf && u.role !== "ADMIN" && (
+                        <ImpersonateButton userId={u.id} userName={u.name ?? u.email} />
+                      )}
+                      <UserActions
+                        userId={u.id}
+                        currentRole={u.role as "SELLER" | "PRE_SELLER" | "ADMIN"}
+                        isSelf={isSelf}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

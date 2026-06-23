@@ -182,6 +182,33 @@ export async function addPreSeller(
   return { success: true };
 }
 
+export async function deleteUser(userId: string): Promise<{ error: string } | { success: true }> {
+  try {
+    const session = await requireAdmin();
+    if (userId === session.user.id) return { error: "Você não pode excluir sua própria conta." };
+    await prisma.user.delete({ where: { id: userId } });
+    revalidatePath("/admin/usuarios");
+    return { success: true };
+  } catch {
+    return { error: "Erro ao excluir usuário." };
+  }
+}
+
+export async function changeUserRole(
+  userId: string,
+  role: "SELLER" | "PRE_SELLER" | "ADMIN",
+): Promise<{ error: string } | { success: true }> {
+  try {
+    const session = await requireAdmin();
+    if (userId === session.user.id) return { error: "Você não pode alterar sua própria função." };
+    await prisma.user.update({ where: { id: userId }, data: { role } });
+    revalidatePath("/admin/usuarios");
+    return { success: true };
+  } catch {
+    return { error: "Erro ao alterar função." };
+  }
+}
+
 export async function generateImpersonateToken(targetUserId: string): Promise<string | null> {
   try {
     const session = await requireAdmin();
