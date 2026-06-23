@@ -13,7 +13,7 @@ export default function LoginPage() {
                 src="/logo-login.png"
                 alt=""
                 className="object-contain"
-                style={{ width: "140%", height: "140%" }}
+                style={{ width: "220%", height: "220%" }}
               />
             </div>
           </div>
