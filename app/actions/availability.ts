@@ -14,7 +14,8 @@ type DaySchedule = {
 
 export async function saveAvailability(sellerId: string, schedule: DaySchedule[]) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN")
+  if (!session) return { error: "Sem permissão." };
+  if (session.user.role !== "ADMIN" && session.user.id !== sellerId)
     return { error: "Sem permissão." };
 
   await prisma.availability.deleteMany({ where: { sellerId } });

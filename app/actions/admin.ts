@@ -52,7 +52,10 @@ export async function updateSeller(
   _prev: { error: string } | { success: true },
   formData: FormData,
 ): Promise<{ error: string } | { success: true }> {
-  try { await requireAdmin(); } catch { return { error: "Sem permissão." }; }
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Sem permissão." };
+  if (session.user.role !== "ADMIN" && session.user.id !== sellerId)
+    return { error: "Sem permissão." };
 
   const name     = (formData.get("name") as string)?.trim();
   const duration = parseInt(formData.get("defaultMeetingDuration") as string) || 60;
@@ -112,7 +115,10 @@ export async function updateSystemConfig(
 }
 
 export async function disconnectGoogleCalendar(sellerId: string) {
-  try { await requireAdmin(); } catch { return { error: "Sem permissão." }; }
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Sem permissão." };
+  if (session.user.role !== "ADMIN" && session.user.id !== sellerId)
+    return { error: "Sem permissão." };
 
   await prisma.user.update({
     where: { id: sellerId },
@@ -128,7 +134,10 @@ export async function addAvailabilityOverride(
   _prev: { error: string } | { success: true },
   formData: FormData,
 ): Promise<{ error: string } | { success: true }> {
-  try { await requireAdmin(); } catch { return { error: "Sem permissão." }; }
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Sem permissão." };
+  if (session.user.role !== "ADMIN" && session.user.id !== sellerId)
+    return { error: "Sem permissão." };
 
   const dateStr = formData.get("date") as string;
   if (!dateStr) return { error: "Data obrigatória." };
@@ -146,7 +155,10 @@ export async function addAvailabilityOverride(
 }
 
 export async function removeAvailabilityOverride(sellerId: string, overrideId: string) {
-  try { await requireAdmin(); } catch { return { error: "Sem permissão." }; }
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Sem permissão." };
+  if (session.user.role !== "ADMIN" && session.user.id !== sellerId)
+    return { error: "Sem permissão." };
 
   await prisma.availabilityOverride.delete({ where: { id: overrideId } });
 
