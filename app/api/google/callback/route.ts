@@ -6,14 +6,20 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
   const { searchParams } = request.nextUrl;
   const code     = searchParams.get("code");
   const sellerId = searchParams.get("state");
   const error    = searchParams.get("error");
+
+  // SELLER só pode conectar a própria conta; PRE_SELLER não tem acesso
+  const allowed =
+    session &&
+    (session.user.role === "ADMIN" ||
+      (session.user.role === "SELLER" && session.user.id === sellerId));
+
+  if (!allowed) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
   if (error || !code || !sellerId) {
     return NextResponse.redirect(
