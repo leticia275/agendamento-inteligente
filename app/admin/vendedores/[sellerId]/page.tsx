@@ -17,9 +17,11 @@ type Props = {
 export default async function SellerDetailPage({ params, searchParams }: Props) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
-  if (session.user.role !== "ADMIN") redirect("/");
-
   const { sellerId } = await params;
+
+  // SELLER pode acessar apenas sua própria página de configurações
+  if (session.user.role === "SELLER" && session.user.id !== sellerId) redirect("/");
+  if (session.user.role === "PRE_SELLER") redirect("/");
   const { gcal } = await searchParams;
 
   const [seller, appointments, overrides] = await Promise.all([

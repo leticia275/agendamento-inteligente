@@ -35,7 +35,7 @@ const ORIGIN_LABEL: Record<LeadOrigin, string> = {
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
-  if (session.user.role === "PRE_SELLER") redirect("/");
+  if (session.user.role === "SELLER") redirect("/minha-agenda");
 
   const appointments = await prisma.appointment.findMany({
     orderBy: { date: "desc" },
@@ -60,13 +60,15 @@ export default async function AdminPage() {
           <p className="text-sm text-zinc-500 mt-0.5">Olá, {session.user.name}</p>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href="/admin/vendedores"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-brand/30 px-3.5 py-2 text-sm font-medium text-brand hover:bg-brand-light transition"
-          >
-            <Users size={15} />
-            Vendedores
-          </Link>
+          {session.user.role === "ADMIN" && (
+            <Link
+              href="/admin/vendedores"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-brand/30 px-3.5 py-2 text-sm font-medium text-brand hover:bg-brand-light transition"
+            >
+              <Users size={15} />
+              Vendedores
+            </Link>
+          )}
           {session.user.role === "ADMIN" && (
             <>
               <Link
